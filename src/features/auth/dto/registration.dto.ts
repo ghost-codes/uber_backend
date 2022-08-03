@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { IsEmail, IsString, IsNotEmpty, MinLength } from 'class-validator';
 
 export class RegistrationDto {
@@ -7,6 +8,10 @@ export class RegistrationDto {
   @IsString()
   @IsNotEmpty()
   firstname: string;
+
+  @IsString()
+  @IsNotEmpty()
+  phone_number: string;
 
   @IsString()
   @IsNotEmpty()
