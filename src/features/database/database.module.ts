@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import User from '../users/users.entity';
+import Car from '../users/entities/cars.entity';
+import Driver from '../users/entities/drivers.entity';
+import User from '../users/entities/users.entity';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import User from '../users/users.entity';
         entities: [
           // __dirname + '/../**/*.entity.ts',
           User,
+          Driver,
+          Car,
         ],
         synchronize: true,
       }),
