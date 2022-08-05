@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   HttpCode,
@@ -7,6 +8,7 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { UsersService } from '../users/users.service';
@@ -30,6 +32,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @UseInterceptors(ClassSerializerInterceptor)
   async register(@Body() registrationData: RegistrationDto) {
     return this.authenticationService.register(registrationData);
   }
@@ -37,12 +40,11 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('log-in')
-  async logIn(@Req() request: RequestWithUser, @Res() response: Response) {
-    const user = request.user;
+  async logIn(@Req() request: RequestWithUser) {
+    const { user } = request;
     const cookie = await this.authenticationService.getCookiesJwtToken(user.id);
-    response.setHeader('Set-Cookies', cookie);
-    user.password = undefined;
-    return response.send(user);
+    request.res.setHeader('Set-Cookies', cookie);
+    return user;
   }
 
   @UseGuards(JwtAuthenticationGuard)
