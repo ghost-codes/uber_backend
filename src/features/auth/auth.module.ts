@@ -9,6 +9,7 @@ import { LocalStrategy } from './stratagies/local.strategy';
 import { JwtStrategy } from './stratagies/jwt.strategy';
 import { DriverModule } from '../drivers/drivers.module';
 import { DriverLocalStrategy } from './stratagies/localDriver.strategy';
+import { DriverJwtStrategy } from './stratagies/driverJwt.strategy';
 
 @Module({
   imports: [
@@ -27,7 +28,13 @@ import { DriverLocalStrategy } from './stratagies/localDriver.strategy';
       }),
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, DriverLocalStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    DriverLocalStrategy,
+    DriverJwtStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

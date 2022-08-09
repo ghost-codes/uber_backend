@@ -17,7 +17,10 @@ import { AuthService } from './auth.service';
 import DriverRegistrationDto from './dto/driverRegistration.dto';
 import LoginDto from './dto/logindto';
 import RegistrationDto from './dto/registration.dto';
-import JwtAuthenticationGuard from './guards/jwtAuthentication.guard';
+import {
+  JwtAuthenticationGuard,
+  DriverJwtAuthenticationGuard,
+} from './guards/jwtAuthentication.guard';
 import {
   LocalAuthenticationGuard,
   LocalDriverAuthenticationGard,
@@ -31,6 +34,14 @@ export class AuthController {
   @UseGuards(JwtAuthenticationGuard)
   @Get()
   authenticate(@Req() request: RequestWithUser) {
+    const user = request.user;
+    user.password = undefined;
+    return user;
+  }
+
+  @UseGuards(DriverJwtAuthenticationGuard)
+  @Get('driver')
+  driverAuthenticate(@Req() request: RequestWithUser) {
     const user = request.user;
     user.password = undefined;
     return user;
@@ -59,7 +70,7 @@ export class AuthController {
   }
 
   @HttpCode(200)
-  @UseGuards(AuthGuard('driver-local'))
+  @UseGuards(LocalDriverAuthenticationGard)
   @Post('driver/log-in')
   async driverLogIn(@Req() request: RequestWithUser) {
     const { user } = request;
@@ -71,6 +82,18 @@ export class AuthController {
   @UseGuards(JwtAuthenticationGuard)
   @Post('log-out')
   async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
+    response.setHeader(
+      'Set-Cookie',
+      this.authenticationService.getCookeForLogout(),
+    );
+    return response.sendStatus(200);
+  }
+  @UseGuards(DriverJwtAuthenticationGuard)
+  @Post('driver/log-out')
+  async DriverlogOut(
+    @Req() request: RequestWithUser,
+    @Res() response: Response,
+  ) {
     response.setHeader(
       'Set-Cookie',
       this.authenticationService.getCookeForLogout(),

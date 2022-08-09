@@ -5,12 +5,16 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from 'src/features/users/users.service';
 import { Request } from 'express';
 import TokenPayload from '../interfaces/tokenPayload.interface';
+import { DriversService } from 'src/features/drivers/drivers.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
+export class DriverJwtStrategy extends PassportStrategy(
+  Strategy,
+  'driver-jwt',
+) {
   constructor(
     private readonly configService: ConfigService,
-    private readonly userService: UsersService,
+    private readonly driverService: DriversService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -23,6 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
   }
 
   async validate(payload: TokenPayload) {
-    return await this.userService.getById(payload.clientId);
+    console.log(payload);
+    return await this.driverService.getById(payload.clientId);
   }
 }
