@@ -6,6 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenPayload } from './interfaces/tokenPayload.interface';
+import DriverRegistrationDto from './dto/driverRegistration.dto';
+import { DriversService } from '../drivers/drivers.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +15,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly driverService: DriversService,
   ) {}
 
   public async register(registrationDto: RegistrationDto) {
@@ -22,7 +25,7 @@ export class AuthService {
         ...registrationDto,
         password: hashPassword,
       });
-      createdUser.password = undefined;
+
       return createdUser;
     } catch (error) {
       if (error?.code === PostgresErrorCode.UniqueViolation) {
@@ -35,6 +38,43 @@ export class AuthService {
       throw new HttpException(
         'Something went wrong',
         HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  public async registerDriver(registerDriverDto: DriverRegistrationDto) {
+    const hashPassword = await bcrypt.hash(registerDriverDto.password, 10);
+    try {
+      const createdDriver = await this.driverService.create({
+        ...registerDriverDto,
+        password: hashPassword,
+      });
+
+      return createdDriver;
+    } catch (error) {
+      console.log('CODE----------------------------', error.code);
+      if (error?.code === PostgresErrorCode.UniqueViolation) {
+        throw new HttpException(
+          'User with that email already exists',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      console.log(error);
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  public async getAuthenticatedDriver(email: string, hashedPassword: string) {
+    try {
+      const user = await this.driverService.getByEmail(email);
+      this.verifyPassword(hashedPassword, user.password);
+      return user;
+    } catch (err) {
+      throw new HttpException(
+        'Wrong credentials provided',
+        HttpStatus.BAD_REQUEST,
       );
     }
   }

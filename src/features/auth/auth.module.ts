@@ -7,10 +7,13 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './stratagies/local.strategy';
 import { JwtStrategy } from './stratagies/jwt.strategy';
+import { DriverModule } from '../drivers/drivers.module';
+import { DriverLocalStrategy } from './stratagies/localDriver.strategy';
 
 @Module({
   imports: [
     UsersModule,
+    DriverModule,
     PassportModule,
     ConfigModule,
     JwtModule.registerAsync({
@@ -24,7 +27,7 @@ import { JwtStrategy } from './stratagies/jwt.strategy';
       }),
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, DriverLocalStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

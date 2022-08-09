@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import Car from '../users/entities/cars.entity';
-import Driver from '../users/entities/drivers.entity';
+import Car from '../drivers/entities/cars.entity';
+import Driver from '../drivers/entities/drivers.entity';
 import User from '../users/entities/users.entity';
 
 @Module({

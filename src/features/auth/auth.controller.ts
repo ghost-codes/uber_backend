@@ -10,14 +10,19 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
+import DriverRegistrationDto from './dto/driverRegistration.dto';
 import LoginDto from './dto/logindto';
 import RegistrationDto from './dto/registration.dto';
 import JwtAuthenticationGuard from './guards/jwtAuthentication.guard';
-import { LocalAuthenticationGuard } from './guards/localAuthentication.guard';
-import RequestWithUser from './interfaces/requestWithUser.interface';
+import {
+  LocalAuthenticationGuard,
+  LocalDriverAuthenticationGard,
+} from './guards/localAuthentication.guard';
+import RequestWithUser from './interfaces/requestWithUser.interface'; // RequestWithDriver,
 
 @Controller('auth')
 export class AuthController {
@@ -37,10 +42,26 @@ export class AuthController {
     return this.authenticationService.register(registrationData);
   }
 
+  @Post('driver/register')
+  @UseInterceptors(ClassSerializerInterceptor)
+  async registerDriver(@Body() registrationData: DriverRegistrationDto) {
+    return this.authenticationService.registerDriver(registrationData);
+  }
+
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('log-in')
   async logIn(@Req() request: RequestWithUser) {
+    const { user } = request;
+    const cookie = await this.authenticationService.getCookiesJwtToken(user.id);
+    request.res.setHeader('Set-Cookies', cookie);
+    return user;
+  }
+
+  @HttpCode(200)
+  @UseGuards(AuthGuard('driver-local'))
+  @Post('driver/log-in')
+  async driverLogIn(@Req() request: RequestWithUser) {
     const { user } = request;
     const cookie = await this.authenticationService.getCookiesJwtToken(user.id);
     request.res.setHeader('Set-Cookies', cookie);
